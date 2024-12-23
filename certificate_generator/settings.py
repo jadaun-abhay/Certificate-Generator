@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 
 from pathlib import Path
 
@@ -25,10 +26,16 @@ SECRET_KEY = 'django-insecure-5q+)1-4#7=(*k@z-kwb1-y!1dyvo6&du79!=ye!+)_uho3(we6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+CORS_ALLOWED_ALL_ORIGINS = True # If set to True, then the server will accept requests from all origins
+CORS_ALLOW_CREDENTIALS = True # If set to True, then cookies will be set in cross-site requests
 
-# Application definition
+SESSION_COOKIE_SECURE = True # If set to True, cookie will only be sent under https connection
+SESSION_COOKIE_HTTPONLY = False # If set to True, cookie will be inaccessible to client-side javascript
+SESSION_COOKIE_SAMESITE = "None" # If set to 'None', the cookie will be sent with all same-site and cross-site requests
+
+AUTH_USER_MODEL = "main.User"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,13 +44,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'sslserver',
+    'main',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -75,8 +86,12 @@ WSGI_APPLICATION = 'certificate_generator.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'auto_certify_db',
+        'USER': 'root',
+        'PASSWORD': '@jadaun2004',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -105,11 +120,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -121,3 +136,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuring media settings
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# Allowed extensions and content-type for uploaded images
+WHITELISTED_IMAGE_TYPES = {
+    'jpeg': 'image/jpeg',
+    'jpg': 'image/jpeg',
+    'png': 'image/png'
+}
