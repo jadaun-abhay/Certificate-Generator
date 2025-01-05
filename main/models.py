@@ -1,5 +1,10 @@
+import os
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+
+from certificate_generator.settings import BASE_DIR
+
 
 # Create your models here.
 
@@ -27,11 +32,12 @@ class User(AbstractUser, BaseModel):
     class Meta:
         db_table = "users"
 
-class UserTemplate(BaseModel):
-    def name_file(self, filename):
-        return '/'.join(["template", f"{self.user.id}", filename])
+class UserDocuments(BaseModel):
+    def file_path(self, filename):
+        return os.path.join(BASE_DIR, "media")
     user = models.ForeignKey(User, on_delete= models.SET_NULL, null= True)
-    template = models.ImageField(upload_to= name_file)
+    zip_path = models.FilePathField(path= file_path)
 
     class Meta:
-        db_table = "users_templates"
+        db_table = "users_zip"
+

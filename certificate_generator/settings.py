@@ -147,3 +147,8 @@ WHITELISTED_IMAGE_TYPES = {
     'jpg': 'image/jpeg',
     'png': 'image/png'
 }
+
+WHITELISTED_FILE_TYPES = {
+    'json': 'application/json',
+    'csv': 'text/csv',
+}
