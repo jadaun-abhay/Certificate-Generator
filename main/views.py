@@ -11,7 +11,7 @@ from django.http import JsonResponse
 
 from certificate_generator.settings import BASE_DIR
 from main.functions import place_field_on_image, create_zip_file
-from main.models import User, BaseModel, UserDocuments
+from main.models import User, BaseModel, UserDocuments, UserTemplates
 
 Status = BaseModel.Status
 
@@ -85,6 +85,7 @@ def certify_document(request):
     if request.method == "POST":
         data = request.POST
         attached_files = request.FILES
+        print(attached_files)
         field_format = data.get("data")
         if not field_format:
             res = {"error": "Data is required !!!"}
@@ -99,10 +100,12 @@ def certify_document(request):
             json_data = json.loads(field_format)
             data = json_data.get("data")
             print(data)
+            status = request.POST.get("status")
             if not isinstance(data, list):
                 res = {"error": "Data is not a list"}
                 return JsonResponse(res, status= 400)
             template = attached_files.get("template")
+            print("template_file", template)
             data_file = attached_files.get("data_file")
             template_extension = None
             if template:
@@ -115,6 +118,7 @@ def certify_document(request):
                 elif content_type not in settings.WHITELISTED_IMAGE_TYPES.values():
                     res = {"error": "Invalid content type for template file"}
                     return JsonResponse(res, status= 400)
+                UserTemplates.objects.get_or_create(user= request.user, template_file= template, status= Status.CREATED)
             if data_file:
                 extension = data_file.name.split(".")[-1]
                 extension = extension.lower()
@@ -127,14 +131,15 @@ def certify_document(request):
                     return JsonResponse(res, status= 400)
                 else:
                     if extension == "json":
-                        with open(data_file.name, "r") as json_file:
+                        with data_file.open("rb") as json_file:
                             json_data = json.load(json_file)
                         data_list = json_data.get("data")
                         result = list()
                         i = -1
                         for certificate in data_list:
                             i += 1
-                            template_img = Image.open(template.name).convert("RGB")
+                            template_path = os.path.join(BASE_DIR, "media", "templates", f"id-{request.user.id}", template.name)
+                            template_img = Image.open(template_path).convert("RGB")
                             for field in certificate:
                                 for field_info in data:
                                     print("field = ", field, ", field_name in file = ", field_info["field_name"])
@@ -147,8 +152,8 @@ def certify_document(request):
                                         continue
                             result.append({"file_name": f"image{i}.{template_extension}", "object": template_img, "extension": template_extension})
                         file_name = create_zip_file(result, request.user)
-                        file = UserDocuments.objects.create(zip_path= file_name, user=request.user, status= Status.CREATED)
-                        res = {"message": "Zip file created successfully", "file_id": file.id}
+                        file = UserDocuments.objects.create(zip_file= file_name, user=request.user, status= Status.CREATED)
+                        res = {"message": "Zip file created successfully", "file_id": file.id, "file_path": file_name}
                         return JsonResponse(res, status= 201)
                     elif extension == "csv":
                         with open(data_file.name, "r") as file:
@@ -157,7 +162,8 @@ def certify_document(request):
                             i = -1
                             for certificate in csv_file:
                                 i += 1
-                                template_img = Image.open(template.name).convert("RGB")
+                                template_path = os.path.join(BASE_DIR, "media", "template", f"id-{request.user.id}", template.name)
+                                template_img = Image.open(template_path).convert("RGB")
                                 for field in certificate:
                                     for field_info in data:
                                         if field == field_info["field_name"]:
@@ -169,7 +175,7 @@ def certify_document(request):
                                 result.append({"file_name": f"image{i}.{template_extension}", "object": template_img, "extension": template_extension})
                             file_name = create_zip_file(result, request.user)
                             file = UserDocuments.objects.create(zip_path= file_name, user=request.user, status= Status.CREATED)
-                            res = {"message": "Zip file created successfully", "file_id": file.id}
+                            res = {"message": "Zip file created successfully", "file_id": file.id, "file_path": file_name}
                             return JsonResponse(res, status= 201)
                     else:
                         res = {"error": "Invalid extension for data file"}

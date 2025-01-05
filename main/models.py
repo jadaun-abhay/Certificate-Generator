@@ -36,8 +36,17 @@ class UserDocuments(BaseModel):
     def file_path(self, filename):
         return os.path.join(BASE_DIR, "media")
     user = models.ForeignKey(User, on_delete= models.SET_NULL, null= True)
-    zip_path = models.FilePathField(path= file_path)
+    zip_file = models.FilePathField(path= file_path)
 
     class Meta:
         db_table = "users_zip"
 
+class UserTemplates(BaseModel):
+    def name_file(self, filename):
+        return os.path.join("templates", f"id-{self.user.id}", filename)
+
+    user = models.ForeignKey(User, on_delete= models.SET_NULL, null= True)
+    template_file = models.ImageField(upload_to= name_file)
+
+    class Meta:
+        db_table = "users_templates"

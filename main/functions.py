@@ -1,8 +1,11 @@
 import io
+import os
 import uuid
 from zipfile import ZipFile
 
 from PIL import ImageFont, ImageDraw
+
+from certificate_generator.settings import BASE_DIR
 
 
 def place_field_on_image(template_img, top_left_corner, bottom_right_corner, my_text):
@@ -38,11 +41,14 @@ def create_zip_file(images, user):
     with ZipFile(zip_buffer, "w") as zip_file:
         for image_dict in images:
             zip_file.writestr(image_dict["file_name"], image_dict["buffer"].getvalue())
-    zip_file_path = "/home/phenom/PycharmProjects/Certificate Generator/media/"
     user_id = user.id
-    print("user_id = ",user_id)
-    file_name = f"{user_id}-" + str(uuid.uuid4().hex) + ".zip"
-    zip_file_path = zip_file_path + file_name
+    if not os.path.exists(f"{BASE_DIR}/media/zips/id-{user_id}/"):
+        os.makedirs("media" + "/" + "zips" + "/" + f"id-{user_id}")
+    zip_file_path = os.path.join(BASE_DIR, "media", "zips", f"id-{user_id}", f"{user_id}-")
+    unique_id = str(uuid.uuid4().hex)
+    file_path = f"/zips/id-{user_id}/" + f"{user_id}-" + unique_id + ".zip"
+    zip_file_path = zip_file_path + unique_id + ".zip"
     with open(zip_file_path, "wb") as my_zip_file:
         my_zip_file.write(zip_buffer.getvalue())
-    return file_name
+
+    return file_path
