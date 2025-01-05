@@ -7,6 +7,8 @@ import re
 from PIL import Image
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import make_password
+from django.db.models import F
 from django.http import JsonResponse
 
 from certificate_generator.settings import BASE_DIR
@@ -17,9 +19,53 @@ Status = BaseModel.Status
 
 # Create your views here.
 
-def index(request):
-    res = {"message": "demo"}
-    return JsonResponse(res, status= 200)
+def register(request):
+    if request.method == "POST":
+        data = request.POST
+        first_name = data.get("first_name")
+        last_name = data.get("last_name")
+        middle_name = data.get("middle_name")
+        email = data.get("email")
+        password = data.get("password")
+        if not (first_name and email and password):
+            res = {"error": "All fields are required"}
+            return JsonResponse(res, status=400)
+        first_name = first_name.capitalize()
+        if not re.match(r'\b[a-z|A-Z]{2,25}', first_name):
+            res = {"error": "Invalid first name. First name must be of characters"}
+            return JsonResponse(res, status= 400)
+        elif not re.match(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', email):
+            res = {"error": "Invalid email"}
+            return JsonResponse(res, status= 400)
+        elif not re.match(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password):
+            res = {"error": "Password must contain at least 8 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character"}
+            return JsonResponse(res, status= 400)
+        if middle_name:
+            middle_name = middle_name.capitalize()
+            if not re.match(r"\b[a-z|A-Z]{2,25}", middle_name):
+                res = {"error": "Invalid middle_name. Middle_name must be of characters"}
+                return JsonResponse(res, status= 400)
+        else:
+            middle_name = ""
+        if last_name:
+            last_name = last_name.capitalize()
+            print(last_name)
+            if not re.match(r"\b[a-z|A-Z]{2,25}", last_name):
+                res = {"error": "Invalid last_name. Last name must be of characters"}
+                return JsonResponse(res, status= 400)
+        else:
+            last_name = ""
+        password = make_password(password)
+        user, status = User.objects.exclude(status= Status.DELETED).get_or_create(email= email, defaults= {"first_name": first_name, "middle_name": middle_name, "last_name": last_name, "status": Status.CREATED, "password": password})
+        if not status:
+            res = {"error": f"User {user.email} already exists"}
+            return JsonResponse(res, status= 400)
+        else:
+            res = {"message": f"User {user.email} created successfully"}
+            return JsonResponse(res, status= 201)
+    else:
+        res = {"error": "Invalid request method"}
+        return JsonResponse(res, status= 405)
 
 def login_user(request):
     if request.method == "POST":
@@ -118,7 +164,8 @@ def certify_document(request):
                 elif content_type not in settings.WHITELISTED_IMAGE_TYPES.values():
                     res = {"error": "Invalid content type for template file"}
                     return JsonResponse(res, status= 400)
-                UserTemplates.objects.get_or_create(user= request.user, template_file= template, status= Status.CREATED)
+                if not status:
+                    UserTemplates.objects.get_or_create(user= request.user, template_file= template, status= Status.CREATED)
             if data_file:
                 extension = data_file.name.split(".")[-1]
                 extension = extension.lower()
@@ -177,6 +224,9 @@ def certify_document(request):
                             file = UserDocuments.objects.create(zip_path= file_name, user=request.user, status= Status.CREATED)
                             res = {"message": "Zip file created successfully", "file_id": file.id, "file_path": file_name}
                             return JsonResponse(res, status= 201)
+                    elif extension == "excel":
+                        with open(data_file.name, "r") as file:
+                            pass
                     else:
                         res = {"error": "Invalid extension for data file"}
                         return JsonResponse(res, status= 400)
@@ -206,3 +256,12 @@ def certify_document(request):
     else:
         res = {"error": "Invalid request method"}
         return JsonResponse(res, status= 405)
+
+def user_templates(request):
+    if not request.user.is_authenticated:
+        res = {"error": "Login required"}
+        return JsonResponse(res, status= 401)
+    if request.method == "GET":
+        templates = list(UserTemplates.objects.filter(user= request.user).exclude(status= Status.DELETED).values(template_id= F("id"), template_path= F("template_file")))
+        res = {"templates": templates}
+        return JsonResponse(res, status= 200)
