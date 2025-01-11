@@ -28,14 +28,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-CORS_ALLOWED_ALL_ORIGINS = True # If set to True, then the server will accept requests from all origins
+CORS_ALLOW_ALL_ORIGINS = True # If set to True, then the server will accept requests from all origins
 CORS_ALLOW_CREDENTIALS = True # If set to True, then cookies will be set in cross-site requests
 
 SESSION_COOKIE_SECURE = True # If set to True, cookie will only be sent under https connection
 SESSION_COOKIE_HTTPONLY = False # If set to True, cookie will be inaccessible to client-side javascript
 SESSION_COOKIE_SAMESITE = "None" # If set to 'None', the cookie will be sent with all same-site and cross-site requests
 
-AUTH_USER_MODEL = "main.User"
+AUTH_USER_MODEL = "my_app.User"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,13 +46,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'sslserver',
-    'main',
+    'my_app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'certificate_generator.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'auto_certify_db',
+        'NAME': 'certificate_generator',
         'USER': 'root',
         'PASSWORD': '@jadaun2004',
         'HOST': 'localhost',

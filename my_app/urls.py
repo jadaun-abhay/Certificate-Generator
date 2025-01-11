@@ -6,6 +6,8 @@ urlpatterns = [
     path("register/", views.register),
     path("login/", views.login_user),
     path("logout/", views.logout_user),
-    path("certify/", views.certify_document),
+    path("zipify/", views.zipify),
     path("templates/", views.user_templates),
+    path("my-drive/", views.drive_structure),
+    path("my-drive/<str:command>/", views.drive_structure),
 ]
