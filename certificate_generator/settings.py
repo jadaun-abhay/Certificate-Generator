@@ -151,4 +151,6 @@ WHITELISTED_IMAGE_TYPES = {
 WHITELISTED_FILE_TYPES = {
     'json': 'application/json',
     'csv': 'text/csv',
+    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'txt': 'text/plain',
 }

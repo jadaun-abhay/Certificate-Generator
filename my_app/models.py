@@ -91,3 +91,18 @@ class UserUploads(BaseModel):
 
     class Meta:
         db_table = "users_uploads"
+
+class Trash(models.Model):
+    show = models.BooleanField(default= False)
+    zip = models.ForeignKey(UserZips, on_delete= models.SET_NULL, null= True)
+    directory = models.ForeignKey(UserFolderStructure, on_delete= models.SET_NULL, null= True)
+    template = models.ForeignKey(UserTemplates, on_delete= models.SET_NULL, null= True)
+    user = models.ForeignKey(User, on_delete= models.SET_NULL, null= True)
+
+class Fonts(BaseModel):
+    font_path = models.FileField(upload_to= "fonts")
+    font_name = models.TextField()
+    user_id = models.ForeignKey(User, on_delete= models.SET_NULL, null= True)
+
+    class Meta:
+        db_table = "fonts"
