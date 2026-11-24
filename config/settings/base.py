@@ -17,6 +17,30 @@ class BaseSettings(Settings):
     )
     DEBUG: bool = os.getenv("DEBUG", "False").strip().lower() == "true"
     AUTH_USER_MODEL: str = "core.User"
+
+    # Frontend runs on a different origin/port than this API (e.g. the Vite
+    # dev server on :5173) - session-cookie auth across origins needs all
+    # of these together, not just CORS:
+    #  - CORS_ALLOWED_ORIGINS/CORS_ALLOW_CREDENTIALS so the browser's
+    #    preflight and the actual response both carry the right
+    #    Access-Control-Allow-* headers. Scoped to known frontend origins,
+    #    not CORS_ALLOW_ALL_ORIGINS - this API sits behind session-cookie
+    #    auth, so allowing every origin would let any website make
+    #    authenticated requests on a logged-in user's behalf.
+    #  - SESSION_COOKIE_SAMESITE="None" so the browser sends the session
+    #    cookie on a cross-origin request at all.
+    #  - SESSION_COOKIE_SECURE=True because modern browsers refuse to set
+    #    or send a SameSite=None cookie over plain HTTP - this is why the
+    #    backend needs `runsslserver`, not `runserver`, for the frontend's
+    #    login to actually stick.
+    CORS_ALLOWED_ORIGINS: ClassVar[list[str]] = os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:5173,https://localhost:5173",
+    ).split(",")
+    CORS_ALLOW_CREDENTIALS: bool = True
+    SESSION_COOKIE_SECURE: bool = True
+    SESSION_COOKIE_HTTPONLY: bool = False
+    SESSION_COOKIE_SAMESITE: str = "None"
     DEFAULT_APPS_DIR: str = "modules"
     DEFAULT_DJANGO_APPS: ClassVar[list[str]] = [
         "django.contrib.admin",
