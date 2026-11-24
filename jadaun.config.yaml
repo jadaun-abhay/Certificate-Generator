@@ -1,0 +1,10 @@
+modules:
+  core:
+    allowed: ["v1"]
+    default: "v1"
+  drive:
+    allowed: ["v1"]
+    default: "v1"
+  handler:
+    allowed: ["v1"]
+    default: "v1"

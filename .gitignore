@@ -1,3 +1,11 @@
 .venv/
 media/
 files/
+.env
+__pycache__/
+.DS_Store
+
+# Generated migrations - keep the package markers so Django still sees
+# `migrations` as an importable package.
+**/migrations/*.py
+!**/migrations/__init__.py
