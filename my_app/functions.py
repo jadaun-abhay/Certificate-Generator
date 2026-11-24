@@ -5,7 +5,7 @@ from zipfile import ZipFile
 
 from PIL import ImageFont, ImageDraw, Image
 
-from certificate_generator.settings import BASE_DIR
+from config.settings import BASE_DIR
 
 def place_field_on_image(template_img, field_info_list, my_text, font_name, text_color= "Black"):
     draw = ImageDraw.Draw(template_img)

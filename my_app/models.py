@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from certificate_generator.settings import BASE_DIR
+from config.settings import BASE_DIR
 
 
 # Create your models here.

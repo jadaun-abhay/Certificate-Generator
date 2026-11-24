@@ -1,0 +1,41 @@
+[project]
+name = "certificate-generator"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "asgiref==3.9.1",
+    "celery>=5.4.0",
+    "django>=6.1.3",
+    "django-celery-results>=2.6.0",
+    "django-cors-headers==4.6.0",
+    "django-sslserver-v2==1.0",
+    "et-xmlfile==2.0.0",
+    "jadaun",
+    "numpy==2.2.1",
+    "openpyxl==3.1.5",
+    "pillow==11.1.0",
+    "psycopg[binary]>=3.3.9",
+    "python-dateutil==2.9.0.post0",
+    "python-dotenv>=1.2.4",
+    "pytz==2024.2",
+    "redis>=8.2.0",
+    "six==1.17.0",
+    "sqlparse==0.5.2",
+    "tzdata==2024.2",
+]
+
+[tool.uv.sources]
+jadaun = { path = "../jadaun", editable = true }
+
+[dependency-groups]
+dev = [
+    "django-stubs>=6.1.2",
+]
+
+[tool.pyright]
+# Every Django model subclass legitimately redeclares its own `class Meta`
+# (abstract=True, constraints, db_table, ...) - django-stubs' .pyi types
+# `Meta` per-class without the mypy plugin pyright can't run, so each
+# redeclaration looks like an incompatible override even though it's the
+# normal, correct pattern.
+reportIncompatibleVariableOverride = false

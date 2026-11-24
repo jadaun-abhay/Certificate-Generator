@@ -13,7 +13,7 @@ from django.contrib.auth.hashers import make_password
 from django.db.models import F
 from django.http import JsonResponse, HttpResponse
 
-from certificate_generator.settings import BASE_DIR
+from config.settings import BASE_DIR
 from my_app.functions import place_field_on_image, create_zip_file
 from my_app.models import User, BaseModel, UserZips, UserTemplates, UserUploads, UserFolderStructure, Trash, Fonts
 
