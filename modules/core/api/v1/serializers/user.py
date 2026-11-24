@@ -26,10 +26,3 @@ class RegisterSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-
-
-class AuthStatusSerializer(serializers.Serializer):
-    """Shape of `GET /api/core/v1/auth/` - schema-only, see `LoginView.get`."""
-
-    is_authenticated = serializers.BooleanField()
-    user = UserSerializer(allow_null=True)

@@ -5,11 +5,7 @@ from rest_framework.response import Response
 
 from jadaun.views import BaseAPIView
 from modules.core.api.v1.serializers.common import ErrorSerializer
-from modules.core.api.v1.serializers.user import (
-    AuthStatusSerializer,
-    LoginSerializer,
-    UserSerializer,
-)
+from modules.core.api.v1.serializers.user import LoginSerializer, UserSerializer
 
 
 class LoginView(BaseAPIView):
@@ -17,37 +13,37 @@ class LoginView(BaseAPIView):
         tags=["core"],
         operation_id="core_auth_status",
         summary="Check login status",
-        description="Whether the current session is authenticated, and if so, who as.",
-        responses={200: AuthStatusSerializer},
+        description=(
+            "200 with the user if the session is authenticated, 401 "
+            "otherwise - check the status code, not the body."
+        ),
+        responses={200: UserSerializer, 401: ErrorSerializer},
         examples=[
             OpenApiExample(
                 "Authenticated",
                 value={
-                    "is_authenticated": True,
-                    "user": {
-                        "id": 1,
-                        "email": "jane@example.com",
-                        "first_name": "Jane",
-                        "last_name": "Doe",
-                        "is_active": True,
-                        "created_at": "2026-01-01T12:00:00Z",
-                    },
+                    "id": 1,
+                    "email": "jane@example.com",
+                    "first_name": "Jane",
+                    "last_name": "Doe",
+                    "is_active": True,
+                    "created_at": "2026-01-01T12:00:00Z",
                 },
                 response_only=True,
+                status_codes=["200"],
             ),
             OpenApiExample(
                 "Not authenticated",
-                value={"is_authenticated": False, "user": None},
+                value={"detail": "Not authenticated."},
                 response_only=True,
+                status_codes=["401"],
             ),
         ],
     )
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return Response({"is_authenticated": False, "user": None})
-        return Response(
-            {"is_authenticated": True, "user": UserSerializer(request.user).data}
-        )
+            self.fail("Not authenticated.", status_code=status.HTTP_401_UNAUTHORIZED)
+        return Response(UserSerializer(request.user).data)
 
     @extend_schema(
         tags=["core"],
