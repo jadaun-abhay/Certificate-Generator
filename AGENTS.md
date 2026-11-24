@@ -125,6 +125,30 @@ uv run manage.py runserver
 uv run celery -A config worker --loglevel=info   # for handler jobs
 ```
 
+## API docs (drf-spectacular)
+
+- `GET /api/schema/` - raw OpenAPI 3 schema
+- `GET /api/docs/` - Swagger UI
+- `GET /api/redoc/` - Redoc
+
+Every view has an explicit `@extend_schema` (request/response serializers,
+`operation_id`, `tags`, and realistic `OpenApiExample`s) - our views are
+plain `BaseAPIView` subclasses, not DRF generics/viewsets, so
+drf-spectacular can't auto-guess serializers the way it can for those;
+every new endpoint needs its own `@extend_schema` or it'll show up in the
+docs with no documented request/response body. See any existing view for
+the pattern. `modules/core/openapi.py` registers the auth scheme for
+`CsrfExemptSessionAuthentication` - do the same for any future custom auth
+class.
+
+One known cosmetic quirk: `uv run manage.py spectacular --fail-on-warn`
+reports a false "unable to guess serializer" on `TrashItemView`
+specifically (nested double dynamic-path-converter folders confuse
+drf-spectacular's endpoint walker even though the real URL only resolves
+once - verified via `get_resolver()`). The generated schema itself is
+correct; just don't use `--fail-on-warn` as a hard CI gate without
+excluding that one.
+
 ## Known gaps / not yet built
 
 - `handler`'s preview only takes a manually-typed sample row, not "preview

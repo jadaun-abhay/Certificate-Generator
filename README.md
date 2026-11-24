@@ -60,6 +60,15 @@ uv run celery -A config worker --loglevel=info   # separate terminal, needed for
 Everything lives under `api/<app>/<version>/...`, e.g.
 `api/drive/v1/folder/`, `api/handler/v1/job/`.
 
+## API docs
+
+With the server running:
+
+- `/api/docs/` - Swagger UI (try requests directly from the browser)
+- `/api/redoc/` - Redoc
+- `/api/schema/` - raw OpenAPI 3 schema, for generating a typed client
+  (`openapi-typescript`, `orval`, etc.)
+
 ## What's where
 
 | App       | Responsibility                                                        |

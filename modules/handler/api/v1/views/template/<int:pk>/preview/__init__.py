@@ -1,7 +1,10 @@
 from django.http import HttpResponse
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import status
 
 from jadaun.views import BaseAPIView
+from modules.core.api.v1.serializers.common import ErrorSerializer
 from modules.handler.api.v1.serializers.template import PreviewSerializer
 from modules.handler.api.v1.services.preview import PreviewService
 from modules.handler.models import CertificateTemplate
@@ -16,6 +19,25 @@ class TemplatePreviewView(BaseAPIView):
             self.fail("Template not found.", status_code=status.HTTP_404_NOT_FOUND)
         return template
 
+    @extend_schema(
+        tags=["handler"],
+        operation_id="handler_template_preview",
+        summary="Render one sample row (preview only, nothing saved)",
+        description=(
+            "`row` keys must match the template's `field_name`s. Returns a "
+            "raw `image/png` body - not JSON. For eyeballing a template "
+            "before committing to a full generation job."
+        ),
+        request=PreviewSerializer,
+        responses={200: OpenApiTypes.BINARY, 400: ErrorSerializer, 404: ErrorSerializer},
+        examples=[
+            OpenApiExample(
+                "Request",
+                value={"row": {"name": "Alice Johnson", "course": "Python Bootcamp"}},
+                request_only=True,
+            ),
+        ],
+    )
     def post(self, request, *args, **kwargs):
         template = self.get_object()
 

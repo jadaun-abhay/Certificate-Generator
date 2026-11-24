@@ -9,6 +9,7 @@ dependencies = [
     "django-celery-results>=2.6.0",
     "django-cors-headers==4.6.0",
     "django-sslserver-v2==1.0",
+    "drf-spectacular>=0.30.0",
     "et-xmlfile==2.0.0",
     "jadaun",
     "numpy==2.2.1",

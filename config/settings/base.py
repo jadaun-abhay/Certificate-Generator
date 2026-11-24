@@ -29,16 +29,45 @@ class BaseSettings(Settings):
     THIRD_PARTY_APPS: ClassVar[list[str]] = [
         "corsheaders",
         "rest_framework",
+        "drf_spectacular",
         "django_celery_results",
         "jadaun",
     ]
     # CsrfViewMiddleware is deliberately disabled below, so session auth's
     # default CSRF enforcement (which runs independently of that middleware)
     # is swapped out too - see modules/core/authentication.py for why.
-    REST_FRAMEWORK: ClassVar[dict[str, list[str]]] = {
+    REST_FRAMEWORK: ClassVar[dict[str, Any]] = {
         "DEFAULT_AUTHENTICATION_CLASSES": [
             "modules.core.authentication.CsrfExemptSessionAuthentication",
         ],
+        "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    }
+    SPECTACULAR_SETTINGS: ClassVar[dict[str, Any]] = {
+        "TITLE": "Certificate Generator API",
+        "DESCRIPTION": (
+            "Auth, a Google-Drive-style file/folder store, and batch "
+            "certificate generation."
+        ),
+        "VERSION": "1.0.0",
+        "SERVE_INCLUDE_SCHEMA": False,
+        # Every endpoint is namespaced /api/<app>/v1/... already - group the
+        # docs by that app name instead of drf-spectacular's path-guessed
+        # default, which would otherwise read the version segment as the tag.
+        "TAGS": [
+            {"name": "core", "description": "Auth and shared primitives."},
+            {"name": "drive", "description": "Folders, files, and trash."},
+            {
+                "name": "handler",
+                "description": "Certificate templates and generation jobs.",
+            },
+        ],
+        # `Dropdown.status` and `GenerationJob.status` are both named
+        # "status" but have different choice sets - name them explicitly
+        # instead of letting drf-spectacular auto-suffix a collision name.
+        "ENUM_NAME_OVERRIDES": {
+            "DropdownStatusEnum": "modules.core.choices.StatusChoices.choices",
+            "JobStatusEnum": "modules.handler.choices.JobStatus.choices",
+        },
     }
     DATABASES: ClassVar = {
         "default": {

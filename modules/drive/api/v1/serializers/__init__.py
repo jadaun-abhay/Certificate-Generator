@@ -1,5 +1,6 @@
 from .file import FileSerializer, FileUpdateSerializer, FileUploadSerializer
 from .folder import FolderSerializer, FolderUpdateSerializer
+from .trash import TrashListSerializer
 
 __all__ = [
     "FileSerializer",
@@ -7,4 +8,5 @@ __all__ = [
     "FileUploadSerializer",
     "FolderSerializer",
     "FolderUpdateSerializer",
+    "TrashListSerializer",
 ]
