@@ -63,18 +63,13 @@ there.
 - `GET api/handler/v1/job/<pk>/` - poll status (`pending` → `processing` →
   `completed`/`failed`) and the resulting `output_zip`.
 
-The actual rendering (`modules/handler/api/v1/services/rendering.py`) is a
-rewrite, not a port, of the old `my_app/functions.py` logic - that code had
-a real crash bug (`draw.text(start_co_ordinate, w, ...)`, `w` undefined)
-and a half-finished multi-field branch.
-
-### `my_app`
-The original, pre-jadaun implementation of (roughly) `core` + `drive` +
-`handler` combined into one app, kept around purely as a **reference** for
-porting logic - not meant to gain new features. Still wired into
-`config/urls.py` under `/my_app/`, and still in
-`DEV_APPS` (dev-only, not in `PROD_APPS`). Safe to delete once nothing in it
-is still being referenced for porting.
+The actual rendering (`modules/handler/api/v1/services/rendering.py`) was a
+rewrite, not a port, of the original pre-jadaun prototype's compositing
+logic - that code had a real crash bug (`draw.text(start_co_ordinate, w,
+...)`, `w` undefined) and a half-finished multi-field branch. The prototype
+app itself (`my_app` - the original, pre-jadaun implementation of roughly
+`core` + `drive` + `handler` combined) has since been removed now that
+`core`/`drive`/`handler` cover what it did.
 
 ## jadaun conventions
 
@@ -138,5 +133,7 @@ uv run celery -A config worker --loglevel=info   # for handler jobs
   poll `GET job/<pk>/`.
 - No tests yet in any app (`tests/` directories are the stock Django
   stubs).
-- `my_app` is still routed and still has real tables (fonts, zips,
-  templates, folder structure) that haven't been ported/retired yet.
+- `my_app`'s old tables (fonts, zips, templates, folder structure) are still
+  sitting in Postgres - the app itself is gone, but dropping those tables
+  (`migrate my_app zero` before deleting it) needs to be done manually; see
+  the commit that removed `my_app` for why it wasn't done automatically.

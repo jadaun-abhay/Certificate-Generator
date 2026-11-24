@@ -55,8 +55,8 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     is_active = models.BooleanField(default=True)
 
     # Overridden to give `groups`/`user_permissions` their own reverse
-    # accessor - `PermissionsMixin`'s defaults clash with `my_app.User`
-    # (the reference app this model replaces) while both are installed.
+    # accessor - `PermissionsMixin`'s defaults clash with any other
+    # installed `AbstractUser`/`PermissionsMixin` model.
     groups = models.ManyToManyField(
         "auth.Group",
         related_name="core_user_set",

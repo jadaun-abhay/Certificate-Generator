@@ -110,19 +110,6 @@ class BaseSettings(Settings):
     MEDIA_ROOT = _BASE_DIR / "media"
     MEDIA_URL = "/media/"
 
-    # Used by the legacy `my_app` reference views (zipify/drive_structure).
-    WHITELISTED_IMAGE_TYPES: ClassVar[dict[str, str]] = {
-        "jpeg": "image/jpeg",
-        "jpg": "image/jpeg",
-        "png": "image/png",
-    }
-    WHITELISTED_FILE_TYPES: ClassVar[dict[str, str]] = {
-        "json": "application/json",
-        "csv": "text/csv",
-        "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "txt": "text/plain",
-    }
-
     # Used by `handler` when a `TemplateField` has no font of its own.
     HANDLER_DEFAULT_FONT_PATH: str = str(
         _BASE_DIR / "fonts" / "CaskaydiaCoveNerdFontMono-Regular.ttf"
