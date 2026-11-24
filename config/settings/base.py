@@ -31,6 +31,7 @@ class BaseSettings(Settings):
         "rest_framework",
         "drf_spectacular",
         "django_celery_results",
+        "sslserver",
         "jadaun",
     ]
     # CsrfViewMiddleware is deliberately disabled below, so session auth's
