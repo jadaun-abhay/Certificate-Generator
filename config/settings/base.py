@@ -35,7 +35,7 @@ class BaseSettings(Settings):
     #    login to actually stick.
     CORS_ALLOWED_ORIGINS: ClassVar[list[str]] = os.getenv(
         "CORS_ALLOWED_ORIGINS",
-        "http://localhost:5173,https://localhost:5173",
+        "http://localhost:5173,https://localhost:5173,https://localhost:5174",
     ).split(",")
     CORS_ALLOW_CREDENTIALS: bool = True
     SESSION_COOKIE_SECURE: bool = True
